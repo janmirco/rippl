@@ -1,0 +1,19 @@
+[project]
+name = "rippl"
+version = "0.1.0"
+description = "A calm, precise bridge from meshes to visualizations"
+readme = "README.md"
+authors = [
+    { name = "Jan Mirco Pfeifer", email = "126580858+janmirco@users.noreply.github.com" }
+]
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
