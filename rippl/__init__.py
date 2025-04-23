@@ -1,1 +1,1 @@
-from . import gmsh
+from . import gmsh, log, path
