@@ -1,1 +1,1 @@
-from . import gmsh, log, path
+from . import gmsh, log, path, pyvista

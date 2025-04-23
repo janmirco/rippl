@@ -3,6 +3,7 @@ from pathlib import Path
 
 import gmsh
 import numpy as np
+import pyvista as pv
 
 import rippl as rp
 
@@ -119,9 +120,10 @@ class GmshManager:
         if (element_types.shape[0] != 1) or (element_types[0] not in [3, 5]):
             raise NotImplementedError(f"Currently only supporting quadrilateral and hexahedral elements. Mesh needs to be changed. element_types = {[self.model.mesh.get_element_properties(i)[0] for i in element_types]}")
         if element_types[0] == 3:  # quadrilateral elements
-            self.elements = np.int64(element_node_tags_list[0].reshape(-1, 4) - 1)  # for compatibility with PyVista, make sure to use int64 (by default, you get uint64 here)
+            self.num_nodes_per_element = 4
         if element_types[0] == 5:  # hexahedral elements
-            self.elements = np.int64(element_node_tags_list[0].reshape(-1, 8) - 1)  # for compatibility with PyVista, make sure to use int64 (by default, you get uint64 here)
+            self.num_nodes_per_element = 8
+        self.elements = np.int64(element_node_tags_list[0].reshape(-1, self.num_nodes_per_element) - 1)  # for compatibility with PyVista, make sure to use int64 (by default, you get uint64 here)
         self.num_elements = self.elements.shape[0]
         logging.info(f"Number of elements: {self.num_elements}")
 
@@ -180,3 +182,9 @@ class GmshManager:
         self.model.add_physical_group(2, [plane])
 
         rp.log.end(section)
+
+    def pyvista_mesh(self) -> pv.UnstructuredGrid:
+        gmsh.open(self.mesh_file.as_posix())
+        self.connectivity = rp.pyvista.connectivity(self.elements, self.num_nodes_per_element)
+        self.cell_types = rp.pyvista.cell_type_array(self.num_elements)
+        return pv.UnstructuredGrid(self.connectivity, self.cell_types, self.nodes)
