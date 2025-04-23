@@ -5,12 +5,11 @@ import rippl as rp
 
 def main():
     with rp.gmsh.GmshManager(model_name="Rectangle") as gm:
-        gm.create_rectangle(num_elements_x=2, num_elements_y=2)
+        gm.create_rectangle(num_elements_x=20, num_elements_y=20)
         logging.info(gm.nodes)
         logging.info(gm.elements)
         logging.info(gm.mesh_file)
-        pv_mesh = gm.pyvista_mesh()
-        logging.info(pv_mesh)
+        gm.show_pyvista_mesh()
 
 
 if __name__ == "__main__":

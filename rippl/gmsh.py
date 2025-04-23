@@ -183,8 +183,15 @@ class GmshManager:
 
         rp.log.end(section)
 
-    def pyvista_mesh(self) -> pv.UnstructuredGrid:
+    def _pyvista_mesh(self) -> pv.UnstructuredGrid:
         gmsh.open(self.mesh_file.as_posix())
         self.connectivity = rp.pyvista.connectivity(self.elements, self.num_nodes_per_element)
         self.cell_types = rp.pyvista.cell_type_array(self.num_elements)
         return pv.UnstructuredGrid(self.connectivity, self.cell_types, self.nodes)
+
+    def show_pyvista_mesh(self) -> None:
+        pv_mesh = self._pyvista_mesh()
+        pl = pv.Plotter()
+        pl.add_mesh(pv_mesh, show_edges=True)
+        pl.camera_position = "xy"
+        pl.show()
