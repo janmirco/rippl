@@ -10,17 +10,28 @@ import rippl as rp
 class GmshManager:
     """Context manager for Gmsh initialization, meshing, finalization, and more"""
 
-    def __init__(self, output_dir: Path, model_name: str = "Rippl mesh", debug_mode: bool = False):
-        self.output_dir = output_dir
+    def __init__(
+        self,
+        output_dir_name: str = "output",
+        log_file_name: str = "app.log",
+        mesh_file_name: str = "mesh.msh",
+        model_name: str = "Rippl mesh",
+        debug_mode: bool = False,
+    ):
+        self.output_dir = rp.path.set_up(output_dir_name)
+        self.mesh_file = self.output_dir / Path(mesh_file_name)
+        rp.log.set_up(self.output_dir, log_file_name)
+
+        self.model = gmsh.model
         self.model_name = model_name
         self.debug_mode = debug_mode
-        self.model = gmsh.model
 
     def __enter__(self):
         self.section = "Gmsh manager"
         rp.log.start(self.section)
         gmsh.initialize()
         self.model.add(self.model_name)
+        logging.info(f"Model name: {self.model_name}")
         gmsh.option.set_number("General.Terminal", self.debug_mode)
         gmsh.option.set_number("General.Tooltips", self.debug_mode)
         return self
@@ -94,7 +105,6 @@ class GmshManager:
         self.model.mesh.generate(dim=dim)
 
         # Save mesh
-        self.mesh_file = self.output_dir / Path("mesh.msh")
         gmsh.write(self.mesh_file.as_posix())
 
         # Get nodes
