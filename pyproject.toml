@@ -8,12 +8,15 @@ authors = [
 ]
 license = "MIT"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "gmsh>=4.13.1",
+    "numpy>=2.2.5",
+    "pyvista>=0.45.0",
+]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
+[tool.hatch.build.targets.wheel]
+packages = ["rippl"]
