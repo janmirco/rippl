@@ -1,0 +1,20 @@
+[project]
+name = "rectangle"
+version = "0.1.0"
+description = "Make a rectangle with rippl"
+readme = "README.md"
+authors = [
+    { name = "Jan Mirco Pfeifer", email = "126580858+janmirco@users.noreply.github.com" }
+]
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "rippl",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.uv.sources]
+rippl = { path = "../../", editable = true }
