@@ -26,7 +26,7 @@ class GmshManager:
         self.debug_mode = debug_mode
 
     def __enter__(self):
-        self.section = "Gmsh manager"
+        self.section = "Gmsh API"
         rp.log.start(self.section)
         gmsh.initialize()
         self.model.add(self.model_name)
