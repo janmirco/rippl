@@ -163,6 +163,8 @@ class Manager:
         self.model.geo.mesh.set_transfinite_curve(c3, num_elements_x + 1)  # top edge
         self.model.geo.mesh.set_transfinite_curve(c2, num_elements_y + 1)  # right edge
         self.model.geo.mesh.set_transfinite_curve(c4, num_elements_y + 1)  # left edge
+        logging.info(f"Number of elements in x-direction: {num_elements_x}")
+        logging.info(f"Number of elements in y-direction: {num_elements_y}")
 
         # Apply transfinite rule to surface
         self.model.geo.mesh.set_transfinite_surface(plane)
