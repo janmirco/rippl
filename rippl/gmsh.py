@@ -3,7 +3,6 @@ from pathlib import Path
 
 import gmsh
 import numpy as np
-import pyvista as pv
 
 import rippl as rp
 
@@ -109,21 +108,30 @@ class GmshManager:
         # Get nodes
         node_tags, node_coords, _ = self.model.mesh.get_nodes()
         node_tags -= 1
-        self.nodes = node_coords.reshape(-1, 3)
-        self.num_nodes = self.nodes.shape[0]
-        logging.info(f"Number of nodes: {self.num_nodes}")
+        nodes = node_coords.reshape(-1, 3)
+        num_nodes = nodes.shape[0]
+        logging.info(f"Number of nodes: {num_nodes}")
 
         # Get elements
         element_types, _, element_node_tags_list = self.model.mesh.get_elements(dim=dim)
         if (element_types.shape[0] != 1) or (element_types[0] not in [3, 5]):
             raise NotImplementedError(f"Currently only supporting quadrilateral and hexahedral elements. Mesh needs to be changed. element_types = {[self.model.mesh.get_element_properties(i)[0] for i in element_types]}")
         if element_types[0] == 3:  # quadrilateral elements
-            self.num_nodes_per_element = 4
+            num_nodes_per_element = 4
         if element_types[0] == 5:  # hexahedral elements
-            self.num_nodes_per_element = 8
-        self.elements = np.int64(element_node_tags_list[0].reshape(-1, self.num_nodes_per_element) - 1)  # for compatibility with PyVista, make sure to use int64 (by default, you get uint64 here)
-        self.num_elements = self.elements.shape[0]
-        logging.info(f"Number of elements: {self.num_elements}")
+            num_nodes_per_element = 8
+        elements = np.int64(element_node_tags_list[0].reshape(-1, num_nodes_per_element) - 1)  # for compatibility with PyVista, make sure to use int64 (by default, you get uint64 here)
+        num_elements = elements.shape[0]
+        logging.info(f"Number of elements: {num_elements}")
+
+        # Store mesh data
+        self.mesh_data = {
+            "nodes": nodes,
+            "elements": elements,
+            "num_nodes": num_nodes,
+            "num_nodes_per_element": num_nodes_per_element,
+            "num_elements": num_elements,
+        }
 
     def create_rectangle(
         self,
@@ -180,16 +188,3 @@ class GmshManager:
         self.model.add_physical_group(2, [plane])
 
         rp.log.end(section)
-
-    def _pyvista_mesh(self) -> pv.UnstructuredGrid:
-        gmsh.open(self.mesh_file.as_posix())
-        self.connectivity = rp.pyvista.connectivity(self.elements, self.num_nodes_per_element)
-        self.cell_types = rp.pyvista.cell_type_array(self.num_elements)
-        return pv.UnstructuredGrid(self.connectivity, self.cell_types, self.nodes)
-
-    def show_pyvista_mesh(self) -> None:
-        pv_mesh = self._pyvista_mesh()
-        pl = pv.Plotter()
-        pl.add_mesh(pv_mesh, show_edges=True)
-        pl.camera_position = "xy"
-        pl.show()
