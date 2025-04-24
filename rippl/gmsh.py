@@ -7,7 +7,7 @@ import numpy as np
 import rippl as rp
 
 
-class GmshManager:
+class Manager:
     """Context manager for Gmsh initialization, meshing, finalization, and more"""
 
     def __init__(
@@ -25,7 +25,7 @@ class GmshManager:
         self.debug_mode = debug_mode
 
     def __enter__(self):
-        self.section = "Gmsh API"
+        self.section = "Gmsh Manager"
         rp.log.start(self.section)
         gmsh.initialize()
         self.model.add(self.model_name)

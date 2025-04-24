@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pyvista as pv
 from numpy.typing import NDArray
@@ -5,46 +7,59 @@ from numpy.typing import NDArray
 import rippl as rp
 
 
-def _connectivity(elements: NDArray[np.int64], num_nodes_per_element: np.int64) -> NDArray[np.int64]:
-    """Get vector containing the connectivity information for PyVista.UnstructuredGrid"""
+class Manager:
+    """Context manager for PyVista"""
 
-    return np.hstack(
-        [
-            np.full(
-                (elements.shape[0], 1),
-                num_nodes_per_element,
-            ),
-            elements,
-        ],
-    ).flatten()
+    def __init__(self, output_dir: Path, mesh_data: dict):
+        self.output_dir = output_dir
+        self.mesh_data = mesh_data
 
+    def __enter__(self):
+        self.section = "PyVista Manager"
+        rp.log.start(self.section)
+        return self
 
-def _cell_type_array(num_elements: int, cell_type: str = "quad") -> NDArray[np.int64]:
-    """
-    Set array containing VTK cell type number
+    def __exit__(self, *_):
+        rp.log.end(self.section)
 
-    See: https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html
-    """
+    def _connectivity(self) -> NDArray[np.int64]:
+        """Get vector containing the connectivity information for PyVista.UnstructuredGrid"""
 
-    vtk_num = 0
-    if cell_type == "quad":
-        vtk_num = 9
-    elif cell_type == "hexa":
-        vtk_num = 12
-    else:
-        raise ValueError("Used cell type is not implemented!")
+        return np.hstack(
+            [
+                np.full(
+                    (self.mesh_data["elements"].shape[0], 1),
+                    self.mesh_data["num_nodes_per_element"],
+                ),
+                self.mesh_data["elements"],
+            ],
+        ).flatten()
 
-    return vtk_num * np.ones(num_elements, dtype=np.int64)
+    def _cell_type_array(self) -> NDArray[np.int64]:
+        """
+        Set array containing VTK cell type number
 
+        See: https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html
+        """
 
-def get_mesh(mesh_data: dict) -> pv.UnstructuredGrid:
-    connectivity = rp.pyvista._connectivity(mesh_data["elements"], mesh_data["num_nodes_per_element"])
-    cell_types = rp.pyvista._cell_type_array(mesh_data["num_elements"])
-    return pv.UnstructuredGrid(connectivity, cell_types, mesh_data["nodes"])
+        if self.mesh_data["num_nodes_per_element"] == 4:
+            vtk_num = 9  # quadrilateral
+        elif self.mesh_data["num_nodes_per_element"] == 8:
+            vtk_num = 12  # hexahedral
+        else:
+            raise ValueError("Used cell type is not implemented!")
 
+        return vtk_num * np.ones(self.mesh_data["num_elements"], dtype=np.int64)
 
-def show_mesh(mesh: pv.UnstructuredGrid) -> None:
-    pl = pv.Plotter()
-    pl.add_mesh(mesh, show_edges=True)
-    pl.camera_position = "xy"
-    pl.show()
+    def import_mesh(self) -> None:
+        self.mesh = pv.UnstructuredGrid(
+            self._connectivity(),
+            self._cell_type_array(),
+            self.mesh_data["nodes"],
+        )
+
+    def show_mesh(self) -> None:
+        pl = pv.Plotter()
+        pl.add_mesh(self.mesh, show_edges=True)
+        pl.camera_position = "xy"
+        pl.show()
