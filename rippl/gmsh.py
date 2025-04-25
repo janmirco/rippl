@@ -68,7 +68,6 @@ class Manager:
     ) -> None:
         """Open GUI to show created mesh"""
 
-        gmsh.open(self.mesh_file.as_posix())
         gmsh.option.set_number("Geometry.Points", False)
         gmsh.option.set_number("Geometry.Lines", False)
         gmsh.option.set_number("Geometry.Surfaces", False)
@@ -76,6 +75,9 @@ class Manager:
         gmsh.option.set_number("Mesh.PointNumbers", node_numbers)
         gmsh.option.set_number("Mesh.SurfaceNumbers", element_numbers)
         gmsh.fltk.run()
+
+    def export_mesh(self) -> None:
+        gmsh.write(self.mesh_file.as_posix())
 
     def mesh(
         self,
@@ -101,9 +103,6 @@ class Manager:
         if transfinite_automatic:
             self.model.mesh.set_transfinite_automatic()
         self.model.mesh.generate(dim=dim)
-
-        # Save mesh
-        gmsh.write(self.mesh_file.as_posix())
 
         # Get nodes
         node_tags, node_coords, _ = self.model.mesh.get_nodes()

@@ -16,6 +16,8 @@ def main():
             num_elements_x=36,
             num_elements_y=18,
         )
+        gm.export_mesh()
+        # gm.show_mesh()
 
     # Access Gmsh manager's properties outside of `with` statement
     logging.info(gm.mesh_data["nodes"])
