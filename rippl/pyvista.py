@@ -62,16 +62,18 @@ class Manager:
         )
 
     def _plot_mesh(self) -> None:
-        self.plot(
+        quantity_name_in_mesh = None
+        screenshot_name = "mesh"
+        self.plot_save_and_show(
+            quantity_name_in_mesh=quantity_name_in_mesh,
+            screenshot_name=screenshot_name,
             show=self.show_mesh,
-            quantity_name_in_mesh=None,
-            screenshot_file_name="mesh.png",
         )
 
     def plot(
         self,
         quantity_name_in_mesh: str,
-        screenshot_file_name: str,
+        screenshot_name: str,
         transparent_background: bool = False,
         show: bool = True,
         color_smooth: bool = True,
@@ -88,6 +90,7 @@ class Manager:
         scalar_bar_position_y: float = 0.0,
         show_axes: bool = True,
         camera_position: str = "xy",
+        screenshot_resolution: tuple[int, int] = (1920, 1080),
     ) -> None:
         pv.global_theme.transparent_background = transparent_background
         plotter = pv.Plotter(off_screen=not show)
@@ -115,5 +118,74 @@ class Manager:
         plotter.camera_position = camera_position
         if show:
             plotter.show()
-        plotter.screenshot(self.output_dir / Path(screenshot_file_name))
+        else:
+            plotter.window_size = screenshot_resolution
+            plotter.screenshot(self.output_dir / Path(f"{screenshot_name}.png"))
+            plotter.save_graphic(self.output_dir / Path(f"{screenshot_name}.svg"))
         plotter.close()
+
+    def plot_save_and_show(
+        self,
+        quantity_name_in_mesh: str,
+        screenshot_name: str,
+        transparent_background: bool = False,
+        show: bool = True,
+        color_smooth: bool = True,
+        interpolate_centroid_data: bool = False,
+        color_map: str = "turbo",
+        show_edges: bool = True,
+        scalar_bar_height: float = 0.1,
+        scalar_bar_width: float = 0.5,
+        scalar_bar_vertical: bool = False,
+        scalar_bar_title: str = "Quantity",
+        scalar_bar_shadow: bool = False,
+        scalar_bar_n_labels: int = 2,
+        scalar_bar_position_x: float = 0.25,
+        scalar_bar_position_y: float = 0.0,
+        show_axes: bool = True,
+        camera_position: str = "xy",
+        screenshot_resolution: tuple[int, int] = (1920, 1080),
+    ):
+        self.plot(
+            quantity_name_in_mesh=quantity_name_in_mesh,
+            screenshot_name=screenshot_name,
+            transparent_background=transparent_background,
+            show=False,
+            color_smooth=color_smooth,
+            interpolate_centroid_data=interpolate_centroid_data,
+            color_map=color_map,
+            show_edges=show_edges,
+            scalar_bar_height=scalar_bar_height,
+            scalar_bar_width=scalar_bar_width,
+            scalar_bar_vertical=scalar_bar_vertical,
+            scalar_bar_title=scalar_bar_title,
+            scalar_bar_shadow=scalar_bar_shadow,
+            scalar_bar_n_labels=scalar_bar_n_labels,
+            scalar_bar_position_x=scalar_bar_position_x,
+            scalar_bar_position_y=scalar_bar_position_y,
+            show_axes=show_axes,
+            camera_position=camera_position,
+            screenshot_resolution=screenshot_resolution,
+        )
+        if show:
+            self.plot(
+                quantity_name_in_mesh=quantity_name_in_mesh,
+                screenshot_name=screenshot_name,
+                transparent_background=transparent_background,
+                show=True,
+                color_smooth=color_smooth,
+                interpolate_centroid_data=interpolate_centroid_data,
+                color_map=color_map,
+                show_edges=show_edges,
+                scalar_bar_height=scalar_bar_height,
+                scalar_bar_width=scalar_bar_width,
+                scalar_bar_vertical=scalar_bar_vertical,
+                scalar_bar_title=scalar_bar_title,
+                scalar_bar_shadow=scalar_bar_shadow,
+                scalar_bar_n_labels=scalar_bar_n_labels,
+                scalar_bar_position_x=scalar_bar_position_x,
+                scalar_bar_position_y=scalar_bar_position_y,
+                show_axes=show_axes,
+                camera_position=camera_position,
+                screenshot_resolution=screenshot_resolution,
+            )
