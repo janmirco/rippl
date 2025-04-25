@@ -91,6 +91,7 @@ class Manager:
         show_axes: bool = True,
         camera_position: str = "xy",
         screenshot_resolution: tuple[int, int] = (1920, 1080),
+        image_scale: int = 2,
     ) -> None:
         pv.global_theme.transparent_background = transparent_background
         plotter = pv.Plotter(off_screen=not show)
@@ -120,6 +121,7 @@ class Manager:
             plotter.show()
         else:
             plotter.window_size = screenshot_resolution
+            plotter.image_scale = image_scale
             plotter.screenshot(self.output_dir / Path(f"{screenshot_name}.png"))
             plotter.save_graphic(self.output_dir / Path(f"{screenshot_name}.svg"))
         plotter.close()
