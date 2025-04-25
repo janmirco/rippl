@@ -10,13 +10,16 @@ import rippl as rp
 class Manager:
     """Context manager for PyVista"""
 
-    def __init__(self, output_dir: Path, mesh_data: dict):
+    def __init__(self, output_dir: Path, mesh_data: dict, show_mesh: bool = False):
         self.output_dir = output_dir
         self.mesh_data = mesh_data
+        self.show_mesh = show_mesh
 
     def __enter__(self):
         self.section = "PyVista Manager"
         rp.log.start(self.section)
+        self._import_mesh()
+        self._plot_mesh()
         return self
 
     def __exit__(self, *_):
@@ -51,15 +54,16 @@ class Manager:
 
         return vtk_num * np.ones(self.mesh_data["num_elements"], dtype=np.int64)
 
-    def import_mesh(self) -> None:
+    def _import_mesh(self) -> None:
         self.mesh = pv.UnstructuredGrid(
             self._connectivity(),
             self._cell_type_array(),
             self.mesh_data["nodes"],
         )
 
-    def show_mesh(self) -> None:
+    def _plot_mesh(self) -> None:
         self.plot(
+            show=self.show_mesh,
             quantity_name_in_mesh=None,
             screenshot_file_name="mesh.png",
         )
