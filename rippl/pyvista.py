@@ -59,7 +59,57 @@ class Manager:
         )
 
     def show_mesh(self) -> None:
-        pl = pv.Plotter()
-        pl.add_mesh(self.mesh, show_edges=True)
-        pl.camera_position = "xy"
-        pl.show()
+        self.plot(
+            quantity_name_in_mesh=None,
+            screenshot_file_name="mesh.png",
+        )
+
+    def plot(
+        self,
+        quantity_name_in_mesh: str,
+        screenshot_file_name: str,
+        transparent_background: bool = False,
+        show: bool = True,
+        color_smooth: bool = True,
+        interpolate_centroid_data: bool = False,
+        color_map: str = "turbo",
+        show_edges: bool = True,
+        scalar_bar_height: float = 0.1,
+        scalar_bar_width: float = 0.5,
+        scalar_bar_vertical: bool = False,
+        scalar_bar_title: str = "Quantity",
+        scalar_bar_shadow: bool = False,
+        scalar_bar_n_labels: int = 2,
+        scalar_bar_position_x: float = 0.25,
+        scalar_bar_position_y: float = 0.0,
+        show_axes: bool = True,
+        camera_position: str = "xy",
+    ) -> None:
+        pv.global_theme.transparent_background = transparent_background
+        plotter = pv.Plotter(off_screen=not show)
+        n_colors = 256 if color_smooth else 14
+        plotter.add_mesh(
+            self.mesh.cell_data_to_point_data() if interpolate_centroid_data else self.mesh,
+            scalars=quantity_name_in_mesh,
+            n_colors=n_colors,
+            cmap=color_map,
+            show_edges=show_edges,
+            scalar_bar_args={
+                "height": scalar_bar_height,
+                "width": scalar_bar_width,
+                "vertical": scalar_bar_vertical,
+                "title": scalar_bar_title,
+                "shadow": scalar_bar_shadow,
+                "n_labels": scalar_bar_n_labels,
+                "n_colors": n_colors,
+                "position_x": scalar_bar_position_x,
+                "position_y": scalar_bar_position_y,
+            },
+        )
+        if show_axes:
+            plotter.show_axes()
+        plotter.camera_position = camera_position
+        if show:
+            plotter.show()
+        plotter.screenshot(self.output_dir / Path(screenshot_file_name))
+        plotter.close()
