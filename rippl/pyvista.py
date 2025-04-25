@@ -147,6 +147,7 @@ class Manager:
         show_axes: bool = True,
         camera_position: str = "xy",
         screenshot_resolution: tuple[int, int] = (1920, 1080),
+        image_scale: int = 2,
     ):
         self.plot(
             quantity_name_in_mesh=quantity_name_in_mesh,
@@ -168,6 +169,7 @@ class Manager:
             show_axes=show_axes,
             camera_position=camera_position,
             screenshot_resolution=screenshot_resolution,
+            image_scale=image_scale,
         )
         if show:
             self.plot(
@@ -190,4 +192,5 @@ class Manager:
                 show_axes=show_axes,
                 camera_position=camera_position,
                 screenshot_resolution=screenshot_resolution,
+                image_scale=image_scale,
             )
