@@ -1,7 +1,7 @@
 [project]
 name = "rippl"
 version = "0.1.0"
-description = "A calm, precise bridge from meshes to visualizations"
+description = "A calm, centralized way of handling meshes and visualizations for FEM simulations"
 readme = "README.md"
 authors = [
     { name = "Jan Mirco Pfeifer", email = "126580858+janmirco@users.noreply.github.com" }
