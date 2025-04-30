@@ -113,12 +113,19 @@ class Manager:
 
         # Get elements
         element_types, _, element_node_tags_list = self.model.mesh.get_elements(dim=dim)
-        if (element_types.shape[0] != 1) or (element_types[0] not in [3, 5]):
+        if element_types.shape[0] != 1:
+            raise NotImplementedError(f"Currently not supporting multiple element types. element_types = {[self.model.mesh.get_element_properties(i)[0] for i in element_types]}")
+        if element_types[0] == 3:
+            num_nodes_per_element = 4  # bi-linear quadrilateral elements
+        elif element_types[0] == 5:
+            num_nodes_per_element = 8  # tri-linear hexahedral elements
+        elif element_types[0] == 10:
+            num_nodes_per_element = 9  # bi-quadratic quadrilateral elements
+        elif element_types[0] == 12:
+            num_nodes_per_element = 27  # tri-quadratic hexahedral elements
+        else:
             raise NotImplementedError(f"Currently only supporting quadrilateral and hexahedral elements. Mesh needs to be changed. element_types = {[self.model.mesh.get_element_properties(i)[0] for i in element_types]}")
-        if element_types[0] == 3:  # quadrilateral elements
-            num_nodes_per_element = 4
-        if element_types[0] == 5:  # hexahedral elements
-            num_nodes_per_element = 8
+
         elements = np.int64(element_node_tags_list[0].reshape(-1, num_nodes_per_element) - 1)  # for compatibility with PyVista, make sure to use int64 (by default, you get uint64 here)
         num_elements = elements.shape[0]
         logging.info(f"Number of elements: {num_elements}")
