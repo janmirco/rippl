@@ -139,6 +139,13 @@ class Manager:
         num_elements_x: int = 10,
         num_elements_y: int = 10,
         show_geometry: bool = False,
+        dim: int = 2,
+        mesh_size: bool = False,
+        recombine_all: bool = True,
+        quasi_structured: bool = False,
+        element_order: int = 1,
+        smoothing: int = 100,
+        transfinite_automatic: bool = False,
         show_mesh: bool = False,
     ) -> None:
         section = "Rectangle"
@@ -175,17 +182,17 @@ class Manager:
 
         # Generate mesh
         self.mesh(
-            dim=2,
-            mesh_size=False,
-            recombine_all=True,
-            quasi_structured=False,
-            element_order=1,
-            smoothing=100,
-            transfinite_automatic=False,
+            dim=dim,
+            mesh_size=mesh_size,
+            recombine_all=recombine_all,
+            quasi_structured=quasi_structured,
+            element_order=element_order,
+            smoothing=smoothing,
+            transfinite_automatic=transfinite_automatic,
         )
         if show_mesh:
             self.show_mesh()
 
-        self.model.add_physical_group(2, [plane])
+        self.model.add_physical_group(dim, [plane])
 
         rp.log.end(section)
