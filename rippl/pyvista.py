@@ -42,10 +42,23 @@ class Manager:
         See: https://vtk.org/doc/nightly/html/vtkCellType_8h_source.html
         """
 
+        vtk_cell_types = {
+            # Linear cells
+            "VTK_QUAD": 9,
+            "VTK_HEXAHEDRON": 12,
+            # Quadratic, isoparametric cells
+            "VTK_BIQUADRATIC_QUAD": 28,
+            "VTK_TRIQUADRATIC_HEXAHEDRON": 29,
+        }
+
         if self.mesh_data["num_nodes_per_element"] == 4:
-            vtk_num = 9  # quadrilateral
+            vtk_num = vtk_cell_types["VTK_QUAD"]
+        elif self.mesh_data["num_nodes_per_element"] == 9:
+            vtk_num = vtk_cell_types["VTK_BIQUADRATIC_QUAD"]
         elif self.mesh_data["num_nodes_per_element"] == 8:
-            vtk_num = 12  # hexahedral
+            vtk_num = vtk_cell_types["VTK_HEXAHEDRON"]
+        elif self.mesh_data["num_nodes_per_element"] == 27:
+            vtk_num = vtk_cell_types["VTK_TRIQUADRATIC_HEXAHEDRON"]
         else:
             raise ValueError("Used cell type is not implemented!")
 
