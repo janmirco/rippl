@@ -1,7 +1,6 @@
 # 🌊 Rippl
 
-Rippl provides a centralized workflow for generating meshes and visualizations for your [finite element](https://en.wikipedia.org/wiki/Finite_element_method) simulations.
-Designed to harmonize the power of [Gmsh](https://gmsh.info/) and [PyVista](https://docs.pyvista.org/), Rippl offers a relaxing environment to handle your pre- and post-processing needs.
+After a lot of duplicate code in my personal [finite element](https://en.wikipedia.org/wiki/Finite_element_method) projects, I started Rippl to have a single, separate place to work on pre- and post-processing utilities. Rippl uses [Gmsh](https://gmsh.info/) for mesh generation and [PyVista](https://docs.pyvista.org/) for visualizations.
 
 ## Usage
 
