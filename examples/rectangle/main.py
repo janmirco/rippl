@@ -1,12 +1,13 @@
 import logging
 
 import rippl as rp
+import utly
 
 
 def main():
     # Set up output directory and logging
-    output_dir = rp.path.set_up_output()
-    rp.log.set_up(output_dir)
+    output_dir = utly.path.set_up_output()
+    utly.log.set_up(output_dir)
 
     # Create mesh using Gmsh
     with rp.gmsh.Manager(output_dir=output_dir, model_name="Rectangle") as gm:

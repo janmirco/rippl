@@ -2,9 +2,8 @@ from pathlib import Path
 
 import numpy as np
 import pyvista as pv
+import utly
 from numpy.typing import NDArray
-
-import rippl as rp
 
 
 class Manager:
@@ -16,11 +15,11 @@ class Manager:
 
     def __enter__(self):
         self.section = "PyVista Manager"
-        rp.log.start(self.section)
+        utly.log.start(self.section)
         return self
 
     def __exit__(self, *_):
-        rp.log.end(self.section)
+        utly.log.end(self.section)
 
     def _connectivity(self) -> NDArray[np.int64]:
         """Get vector containing the connectivity information for PyVista.UnstructuredGrid"""

@@ -3,8 +3,7 @@ from pathlib import Path
 
 import gmsh
 import numpy as np
-
-import rippl as rp
+import utly
 
 
 class Manager:
@@ -26,7 +25,7 @@ class Manager:
 
     def __enter__(self):
         self.section = "Gmsh Manager"
-        rp.log.start(self.section)
+        utly.log.start(self.section)
         gmsh.initialize()
         self.model.add(self.model_name)
         logging.info(f"Model name: {self.model_name}")
@@ -36,7 +35,7 @@ class Manager:
 
     def __exit__(self, *_):
         gmsh.finalize()
-        rp.log.end(self.section)
+        utly.log.end(self.section)
 
     def get_model_name(self) -> str:
         return self.model.get_current()
@@ -156,7 +155,7 @@ class Manager:
         show_mesh: bool = False,
     ) -> None:
         section = "Rectangle"
-        rp.log.start(section)
+        utly.log.start(section)
 
         # Add basic geometric entities
         x, y, z = 0.0, 0.0, 0.0  # position of bottom left point of rectangle
@@ -202,4 +201,4 @@ class Manager:
 
         self.model.add_physical_group(dim, [plane])
 
-        rp.log.end(section)
+        utly.log.end(section)
