@@ -44,6 +44,7 @@ uv add --editable <PATH_TO_HELLO_REPO>
 - Code execution: [GNU Make](https://www.gnu.org/software/make/)
 - Package and project manager: [uv](https://docs.astral.sh/uv/)
 - Python packages:
+    - [Utly](https://github.com/janmirco/utly)
     - [Gmsh](https://gmsh.info/)
     - [NumPy](https://numpy.org/)
     - [PyVista](https://docs.pyvista.org/)
