@@ -5,7 +5,7 @@ import rippl as rp
 
 def main():
     # Set up output directory and logging
-    output_dir = rp.path.set_up()
+    output_dir = rp.path.set_up_output()
     rp.log.set_up(output_dir)
 
     # Create mesh using Gmsh
