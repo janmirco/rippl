@@ -1,9 +1,51 @@
+import logging
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 import pyvista as pv
 import utly
 from numpy.typing import NDArray
+
+
+@dataclass
+class PyVistaSettings:
+    """
+    Settings for PyVista plotting.
+
+    Note:
+        After changing attributes
+        - `color_smooth`
+        - `transparent_background`
+        you must call `sync()` to update dependent fields and global state.
+    """
+
+    transparent_background: bool = False
+    color_smooth: bool = True
+    n_colors: int = 256
+    color_map: str = "turbo"
+    color_limits_cutoff: float = 1.0e-10
+    show_edges: bool = True
+    scalar_bar_height: float = 0.1
+    scalar_bar_width: float = 0.5
+    scalar_bar_vertical: bool = False
+    scalar_bar_shadow: bool = False
+    scalar_bar_n_labels: int = 2
+    scalar_bar_position_x: float = 0.25
+    scalar_bar_position_y: float = 0.0
+    show_axes: bool = True
+    camera_position: str = "xy"
+    screenshot_resolution: tuple[int, int] = (1024, 768)
+    image_scale: int = 1
+    export_png: bool = True
+    export_svg: bool = False
+
+    def __post_init__(self) -> None:
+        self.sync()
+
+    def sync(self) -> None:
+        self.n_colors = 256 if self.color_smooth else 14
+        pv.global_theme.transparent_background = self.transparent_background
 
 
 class Manager:
@@ -70,77 +112,71 @@ class Manager:
             self.mesh_data["nodes"],
         )
 
-    def show_mesh(self) -> None:
-        self.plot(
-            quantity_name_in_mesh=None,
-            screenshot_name="mesh",
-            show=True,
-        )
+    def plot(self, pv_set: PyVistaSettings, quantity_name: str) -> None:
+        """
+        Function to plot using PyVista.
 
-    def export_mesh(self) -> None:
-        self.plot(
-            quantity_name_in_mesh=None,
-            screenshot_name="mesh",
-            show=False,
-        )
+        Notes:
+            - At beginning of this function, PyVistaSettings are updated using `sync()` method.
+            - Use `quantity_name = "mesh"` for only plotting the mesh.
+        """
 
-    def plot(
-        self,
-        quantity_name_in_mesh: str,
-        screenshot_name: str,
-        transparent_background: bool = False,
-        show: bool = True,
-        color_smooth: bool = True,
-        interpolate_centroid_data: bool = False,
-        color_map: str = "turbo",
-        show_edges: bool = True,
-        scalar_bar_height: float = 0.1,
-        scalar_bar_width: float = 0.5,
-        scalar_bar_vertical: bool = False,
-        scalar_bar_title: str = "Quantity",
-        scalar_bar_shadow: bool = False,
-        scalar_bar_n_labels: int = 2,
-        scalar_bar_position_x: float = 0.25,
-        scalar_bar_position_y: float = 0.0,
-        show_axes: bool = True,
-        camera_position: str = "xy",
-        screenshot_resolution: tuple[int, int] = (1024, 768),
-        image_scale: int = 1,
-        export_png: bool = True,
-        export_svg: bool = False,
-    ) -> None:
-        pv.global_theme.transparent_background = transparent_background
-        plotter = pv.Plotter(off_screen=not show)
-        n_colors = 256 if color_smooth else 14
+        pv_set.sync()
+
+        if quantity_name.lower() == "mesh":
+            cmin = 0.0
+            cmax = 0.0
+        else:
+            # Set proper color limits
+            data = self.mesh[quantity_name]
+            data = np.where(np.abs(data) < pv_set.color_limits_cutoff, 0.0, data)
+            cmin = data.min()
+            cmax = data.max()
+            if np.isclose(cmin, cmax):
+                center = 0.0 if np.isclose(cmin, 0.0) else cmin
+                cmin = center - pv_set.color_limits_cutoff
+                cmax = center + pv_set.color_limits_cutoff
+
+        # Create plotter
+        plotter = pv.Plotter(off_screen=True)
         plotter.add_mesh(
-            self.mesh.cell_data_to_point_data() if interpolate_centroid_data else self.mesh,
-            scalars=quantity_name_in_mesh,
-            n_colors=n_colors,
-            cmap=color_map,
-            show_edges=show_edges,
+            self.mesh.cell_data_to_point_data(),
+            scalars=None if quantity_name.lower() == "mesh" else quantity_name,
+            n_colors=pv_set.n_colors,
+            cmap=pv_set.color_map,
+            clim=[cmin, cmax],
+            show_edges=pv_set.show_edges,
             scalar_bar_args={
-                "height": scalar_bar_height,
-                "width": scalar_bar_width,
-                "vertical": scalar_bar_vertical,
-                "title": scalar_bar_title,
-                "shadow": scalar_bar_shadow,
-                "n_labels": scalar_bar_n_labels,
-                "n_colors": n_colors,
-                "position_x": scalar_bar_position_x,
-                "position_y": scalar_bar_position_y,
+                "height": pv_set.scalar_bar_height,
+                "width": pv_set.scalar_bar_width,
+                "vertical": pv_set.scalar_bar_vertical,
+                "title": quantity_name,
+                "shadow": pv_set.scalar_bar_shadow,
+                "n_labels": pv_set.scalar_bar_n_labels,
+                "n_colors": pv_set.n_colors,
+                "position_x": pv_set.scalar_bar_position_x,
+                "position_y": pv_set.scalar_bar_position_y,
             },
         )
-        if show_axes:
+        if pv_set.show_axes:
             plotter.show_axes()
-        plotter.camera_position = camera_position
-        if show:
-            plotter.show()
-        else:
-            plotter.window_size = screenshot_resolution
-            if image_scale > 1:
-                plotter.image_scale = image_scale
-            if export_png:
-                plotter.screenshot(self.output_dir / Path(f"{screenshot_name}.png"))
-            if export_svg:
-                plotter.save_graphic(self.output_dir / Path(f"{screenshot_name}.svg"))
+        plotter.camera_position = pv_set.camera_position
+        plotter.window_size = pv_set.screenshot_resolution
+        if pv_set.image_scale > 1:
+            plotter.image_scale = pv_set.image_scale
+
+        quantity_name = quantity_name.lower()
+        quantity_name = quantity_name.replace(" ", "_")
+        symbols_to_remove = "'\"()[]{}"
+        quantity_name = quantity_name.translate(str.maketrans("", "", symbols_to_remove))
+
+        if pv_set.export_png:
+            quantity_png_file = self.output_dir / Path(f"{quantity_name}.png")
+            plotter.screenshot(quantity_png_file)
+            logging.info(f"Exported: {quantity_png_file}")
+        if pv_set.export_svg:
+            quantity_svg_file = self.output_dir / Path(f"{quantity_name}.svg")
+            plotter.save_graphic(quantity_svg_file)
+            logging.info(f"Exported: {quantity_svg_file}")
+
         plotter.close()
