@@ -106,7 +106,7 @@ class Manager:
         return vtk_num * np.ones(self.mesh_data["num_elements"], dtype=np.int64)
 
     def import_mesh(self) -> None:
-        if self.mesh_data is pv.UnstructuredGrid:
+        if isinstance(self.mesh_data, pv.UnstructuredGrid):
             self.mesh = self.mesh_data
         else:
             self.mesh = pv.UnstructuredGrid(
