@@ -51,7 +51,7 @@ class Settings:
 class Manager:
     """Context manager for PyVista"""
 
-    def __init__(self, output_dir: Path, mesh_data: dict):
+    def __init__(self, output_dir: Path, mesh_data: dict | pv.UnstructuredGrid):
         self.output_dir = output_dir
         self.mesh_data = mesh_data
 
@@ -106,11 +106,14 @@ class Manager:
         return vtk_num * np.ones(self.mesh_data["num_elements"], dtype=np.int64)
 
     def import_mesh(self) -> None:
-        self.mesh = pv.UnstructuredGrid(
-            self._connectivity(),
-            self._cell_type_array(),
-            self.mesh_data["nodes"],
-        )
+        if self.mesh_data is pv.UnstructuredGrid:
+            self.mesh = self.mesh_data
+        else:
+            self.mesh = pv.UnstructuredGrid(
+                self._connectivity(),
+                self._cell_type_array(),
+                self.mesh_data["nodes"],
+            )
 
     def plot(self, pv_set: Settings, quantity_name: str) -> None:
         """
