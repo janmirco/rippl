@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 
 
 @dataclass
-class PyVistaSettings:
+class Settings:
     """
     Settings for PyVista plotting.
 
@@ -112,7 +112,7 @@ class Manager:
             self.mesh_data["nodes"],
         )
 
-    def plot(self, pv_set: PyVistaSettings, quantity_name: str) -> None:
+    def plot(self, pv_set: Settings, quantity_name: str) -> None:
         """
         Function to plot using PyVista.
 

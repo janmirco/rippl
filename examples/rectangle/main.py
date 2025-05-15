@@ -26,7 +26,7 @@ def main():
     logging.info(gm.mesh_file)
 
     # Import mesh data to create PyVista's `UnstructuredGrid`
-    pv_set = rp.pyvista.PyVistaSettings()
+    pv_set = rp.pyvista.Settings()
     with rp.pyvista.Manager(output_dir=output_dir, mesh_data=gm.mesh_data) as pm:
         pm.import_mesh()
         pm.plot(pv_set=pv_set, quantity_name="mesh")
