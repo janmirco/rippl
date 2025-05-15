@@ -18,7 +18,6 @@ def main():
             num_elements_y=18,
         )
         gm.export_mesh()
-        # gm.show_mesh()
 
     # Access Gmsh manager's properties outside of `with` statement
     logging.info(gm.mesh_data["nodes"])
@@ -30,7 +29,6 @@ def main():
     with rp.pyvista.Manager(output_dir=output_dir, mesh_data=gm.mesh_data) as pm:
         pm.import_mesh()
         pm.plot(pv_set=pv_set, quantity_name="mesh")
-        # pm.show_mesh()
 
     # Access PyVista manager's properties outside of `with` statement
     logging.info(pm.mesh)
