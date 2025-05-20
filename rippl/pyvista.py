@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pyvista as pv
@@ -115,7 +116,7 @@ class Manager:
                 self.mesh_data["nodes"],
             )
 
-    def plot(self, pv_set: Settings, quantity_name: str) -> None:
+    def plot(self, pv_set: Settings, quantity_name: str, plotter: Optional[pv.Plotter] = None) -> Optional[pv.Plotter]:
         """
         Function to plot using PyVista.
 
@@ -141,7 +142,13 @@ class Manager:
                 cmax = center + pv_set.color_limits_cutoff
 
         # Create plotter
-        plotter = pv.Plotter(off_screen=True)
+        if plotter is None:
+            return_plotter = False
+            plotter = pv.Plotter(off_screen=True)
+        elif isinstance(plotter, pv.Plotter):
+            return_plotter = True
+        else:
+            raise ValueError("`plotter` must be a pyvista.Plotter instance or None.")
         plotter.add_mesh(
             self.mesh.cell_data_to_point_data(),
             scalars=None if quantity_name.lower() == "mesh" else quantity_name,
@@ -182,4 +189,7 @@ class Manager:
             plotter.save_graphic(quantity_svg_file)
             logging.info(f"Exported: {quantity_svg_file}")
 
-        plotter.close()
+        if return_plotter:
+            return plotter
+        else:
+            plotter.close()
