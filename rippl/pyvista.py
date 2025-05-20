@@ -25,6 +25,9 @@ class Settings:
     color_smooth: bool = True
     n_colors: int = 256
     color_map: str = "turbo"
+    color_limits_auto: bool = True
+    color_limits_min: float = 0.0
+    color_limits_max: float = 0.0
     color_limits_cutoff: float = 1.0e-10
     show_edges: bool = True
     scalar_bar_height: float = 0.1
@@ -128,19 +131,16 @@ class Manager:
 
         pv_set.sync()
 
-        if quantity_name.lower() == "mesh":
-            cmin = 0.0
-            cmax = 0.0
-        else:
+        if pv_set.color_limits_auto and (quantity_name.lower() != "mesh"):
             # Set proper color limits
             data = self.mesh[quantity_name]
             data = np.where(np.abs(data) < pv_set.color_limits_cutoff, 0.0, data)
-            cmin = data.min()
-            cmax = data.max()
-            if np.isclose(cmin, cmax):
-                center = 0.0 if np.isclose(cmin, 0.0) else cmin
-                cmin = center - pv_set.color_limits_cutoff
-                cmax = center + pv_set.color_limits_cutoff
+            pv_set.color_limits_min = data.min()
+            pv_set.color_limits_max = data.max()
+            if np.isclose(pv_set.color_limits_min, pv_set.color_limits_max):
+                center = 0.0 if np.isclose(pv_set.color_limits_min, 0.0) else pv_set.color_limits_min
+                pv_set.color_limits_min = center - pv_set.color_limits_cutoff
+                pv_set.color_limits_max = center + pv_set.color_limits_cutoff
 
         # Create plotter
         if plotter is None:
@@ -155,7 +155,7 @@ class Manager:
             scalars=None if quantity_name.lower() == "mesh" else quantity_name,
             n_colors=pv_set.n_colors,
             cmap=pv_set.color_map,
-            clim=[cmin, cmax],
+            clim=[pv_set.color_limits_min, pv_set.color_limits_max],
             show_edges=pv_set.show_edges,
             scalar_bar_args={
                 "height": pv_set.scalar_bar_height,
