@@ -59,6 +59,7 @@ class Manager:
     def __enter__(self):
         self.section = "PyVista Manager"
         utly.log.start(self.section)
+        self._import_mesh()
         return self
 
     def __exit__(self, *_):
@@ -106,7 +107,7 @@ class Manager:
 
         return vtk_num * np.ones(self.mesh_data["num_elements"], dtype=np.int64)
 
-    def import_mesh(self) -> None:
+    def _import_mesh(self) -> None:
         if isinstance(self.mesh_data, pv.UnstructuredGrid):
             self.mesh = self.mesh_data
         else:
