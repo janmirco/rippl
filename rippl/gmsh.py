@@ -90,18 +90,21 @@ class Manager:
     ) -> None:
         """Mesh created geometry with sane defaults"""
 
-        if mesh_size:
-            gmsh.option.set_number("Mesh.MeshSizeFromPoints", False)
-            gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
-            gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
-        gmsh.option.set_number("Mesh.RecombineAll", recombine_all)
-        if quasi_structured:
-            gmsh.option.set_number("Mesh.Algorithm", 11)  # quasi-structured
-        gmsh.option.set_number("Mesh.ElementOrder", element_order)
-        gmsh.option.set_number("Mesh.Smoothing", smoothing)
-        if transfinite_automatic:
-            self.model.mesh.set_transfinite_automatic()
-        self.model.mesh.generate(dim=dim)
+        if self.mesh_file.exists():
+            gmsh.open(self.mesh_file.as_posix())
+        else:
+            if mesh_size:
+                gmsh.option.set_number("Mesh.MeshSizeFromPoints", False)
+                gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
+                gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
+            gmsh.option.set_number("Mesh.RecombineAll", recombine_all)
+            if quasi_structured:
+                gmsh.option.set_number("Mesh.Algorithm", 11)  # quasi-structured
+            gmsh.option.set_number("Mesh.ElementOrder", element_order)
+            gmsh.option.set_number("Mesh.Smoothing", smoothing)
+            if transfinite_automatic:
+                self.model.mesh.set_transfinite_automatic()
+            self.model.mesh.generate(dim=dim)
 
         # Get nodes
         node_tags, node_coords, _ = self.model.mesh.get_nodes()
