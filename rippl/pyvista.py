@@ -184,11 +184,11 @@ class Manager:
         if pv_set.export_png:
             quantity_png_file = self.output_dir / Path(f"{quantity_name}.png")
             plotter.screenshot(quantity_png_file)
-            logging.info(f"Exported: {quantity_png_file}")
+            logging.debug(f"Exported: {quantity_png_file}")
         if pv_set.export_svg:
             quantity_svg_file = self.output_dir / Path(f"{quantity_name}.svg")
             plotter.save_graphic(quantity_svg_file)
-            logging.info(f"Exported: {quantity_svg_file}")
+            logging.debug(f"Exported: {quantity_svg_file}")
 
         if return_plotter:
             return plotter
