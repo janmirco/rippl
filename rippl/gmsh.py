@@ -3,7 +3,6 @@ from pathlib import Path
 
 import gmsh
 import numpy as np
-import utly
 
 
 class Manager:
@@ -24,8 +23,6 @@ class Manager:
         self.debug_mode = debug_mode
 
     def __enter__(self):
-        self.section = "Gmsh Manager"
-        utly.log.start(self.section)
         gmsh.initialize()
         self.model.add(self.model_name)
         logging.info(f"Model name: {self.model_name}")
@@ -35,7 +32,6 @@ class Manager:
 
     def __exit__(self, *_):
         gmsh.finalize()
-        utly.log.end(self.section)
 
     def get_model_name(self) -> str:
         return self.model.get_current()
@@ -157,9 +153,6 @@ class Manager:
         transfinite_automatic: bool = False,
         show_mesh: bool = False,
     ) -> None:
-        section = "Rectangle"
-        utly.log.start(section)
-
         # Add basic geometric entities
         x, y, z = 0.0, 0.0, 0.0  # position of bottom left point of rectangle
         p1 = self.model.geo.add_point(x, y, z)
@@ -203,5 +196,3 @@ class Manager:
             self.show_mesh()
 
         self.model.add_physical_group(dim, [plane])
-
-        utly.log.end(section)

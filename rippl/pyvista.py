@@ -5,7 +5,6 @@ from typing import Optional
 
 import numpy as np
 import pyvista as pv
-import utly
 from numpy.typing import NDArray
 
 
@@ -60,13 +59,11 @@ class Manager:
         self.mesh_data = mesh_data
 
     def __enter__(self):
-        self.section = "PyVista Manager"
-        utly.log.start(self.section)
         self._import_mesh()
         return self
 
     def __exit__(self, *_):
-        utly.log.end(self.section)
+        pass
 
     def _connectivity(self) -> NDArray[np.int64]:
         """Get vector containing the connectivity information for PyVista.UnstructuredGrid"""
