@@ -395,7 +395,7 @@ wheels = [
 
 [[package]]
 name = "rippl"
-version = "0.2.8"
+version = "0.2.9"
 source = { editable = "." }
 dependencies = [
     { name = "gmsh" },
@@ -450,8 +450,8 @@ wheels = [
 
 [[package]]
 name = "utly"
-version = "0.1.1"
-source = { git = "https://github.com/janmirco/utly.git#c62aba8f6e289f525eabb8bbd26eca18dd95383f" }
+version = "0.1.4"
+source = { git = "https://github.com/janmirco/utly.git#af3bac2677ec48865153c0c775c4389c5aa22f63" }
 
 [[package]]
 name = "vtk"
