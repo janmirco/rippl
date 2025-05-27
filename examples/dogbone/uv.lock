@@ -96,6 +96,21 @@ wheels = [
 ]
 
 [[package]]
+name = "dogbone"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "rippl" },
+    { name = "utly" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "rippl", editable = "../../" },
+    { name = "utly", git = "https://github.com/janmirco/utly.git" },
+]
+
+[[package]]
 name = "fonttools"
 version = "4.58.0"
 source = { registry = "https://pypi.org/simple" }
@@ -396,7 +411,7 @@ wheels = [
 [[package]]
 name = "rippl"
 version = "0.2.12"
-source = { editable = "." }
+source = { editable = "../../" }
 dependencies = [
     { name = "gmsh" },
     { name = "numpy" },

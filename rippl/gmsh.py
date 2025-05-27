@@ -137,6 +137,65 @@ class Manager:
             "num_elements": num_elements,
         }
 
+    def create_dogbone(
+        self,
+        width: float = 75.0,
+        gauge: float = 50.0,
+        height: float = 10.0,
+        height_inner: float = 5.0,
+        show_geometry: bool = False,
+        dim: int = 2,
+        mesh_size: bool = 1.0,
+        recombine_all: bool = True,
+        quasi_structured: bool = True,
+        element_order: int = 1,
+        smoothing: int = 100,
+        transfinite_automatic: bool = False,
+        show_mesh: bool = False,
+    ) -> None:
+        # Add basic geometric entities
+        x, y, z = 0.0, 0.0, 0.0  # position of bottom left point of rectangle
+        rec = self.model.occ.add_rectangle(x, y, z, width, height)
+        radius = (height - height_inner) / 2.0
+        gauge_start = (width - gauge) / 2.0
+        cyl1 = self.model.occ.add_cylinder(x + gauge_start, y, z - 0.5, 0.0, 0.0, 1.0, radius)
+        cyl2 = self.model.occ.add_cylinder(x + width - gauge_start, y, z - 0.5, 0.0, 0.0, 1.0, radius)
+        cyl3 = self.model.occ.add_cylinder(x + gauge_start, y + height, z - 0.5, 0.0, 0.0, 1.0, radius)
+        cyl4 = self.model.occ.add_cylinder(x + width - gauge_start, y + height, z - 0.5, 0.0, 0.0, 1.0, radius)
+        box1 = self.model.occ.add_box(x + gauge_start, y, z - 0.5, gauge, radius, 1.0)
+        box2 = self.model.occ.add_box(x + gauge_start, y + height, z - 0.5, gauge, -radius, 1.0)
+        plane = self.model.occ.cut(
+            [(2, rec)],
+            [
+                (3, cyl1),
+                (3, cyl2),
+                (3, cyl3),
+                (3, cyl4),
+                (3, box1),
+                (3, box2),
+            ],
+        )[0][0][1]
+
+        # Synchronize and visualize geometry
+        self.model.occ.synchronize()  # needs to be called before any use of functions outside of the GEO kernel
+        if show_geometry:
+            self.show_geometry()
+
+        # Generate mesh
+        self.mesh(
+            dim=dim,
+            mesh_size=mesh_size,
+            recombine_all=recombine_all,
+            quasi_structured=quasi_structured,
+            element_order=element_order,
+            smoothing=smoothing,
+            transfinite_automatic=transfinite_automatic,
+        )
+        if show_mesh:
+            self.show_mesh()
+
+        self.model.add_physical_group(dim, [plane])
+
     def create_rectangle(
         self,
         width: float = 1.0,
