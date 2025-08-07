@@ -196,6 +196,55 @@ class Manager:
 
         self.model.add_physical_group(dim, [plane])
 
+    def create_notched(
+        self,
+        width: float = 75.0,
+        height: float = 10.0,
+        radius: float = 2.5,
+        show_geometry: bool = False,
+        dim: int = 2,
+        mesh_size: bool = 1.0,
+        recombine_all: bool = True,
+        quasi_structured: bool = True,
+        element_order: int = 1,
+        smoothing: int = 100,
+        transfinite_automatic: bool = False,
+        # show_mesh: bool = False,
+        show_mesh: bool = True,
+    ) -> None:
+        # Add basic geometric entities
+        x, y, z = 0.0, 0.0, 0.0  # position of bottom left point of rectangle
+        rec = self.model.occ.add_rectangle(x, y, z, width, height)
+        cyl1 = self.model.occ.add_cylinder(x + 0.5 * width, y, z - 0.5, 0.0, 0.0, 1.0, radius)
+        cyl2 = self.model.occ.add_cylinder(x + 0.5 * width, y + height, z - 0.5, 0.0, 0.0, 1.0, radius)
+        plane = self.model.occ.cut(
+            [(2, rec)],
+            [
+                (3, cyl1),
+                (3, cyl2),
+            ],
+        )[0][0][1]
+
+        # Synchronize and visualize geometry
+        self.model.occ.synchronize()  # needs to be called before any use of functions outside of the GEO kernel
+        if show_geometry:
+            self.show_geometry()
+
+        # Generate mesh
+        self.mesh(
+            dim=dim,
+            mesh_size=mesh_size,
+            recombine_all=recombine_all,
+            quasi_structured=quasi_structured,
+            element_order=element_order,
+            smoothing=smoothing,
+            transfinite_automatic=transfinite_automatic,
+        )
+        if show_mesh:
+            self.show_mesh()
+
+        self.model.add_physical_group(dim, [plane])
+
     def create_rectangle(
         self,
         width: float = 1.0,
