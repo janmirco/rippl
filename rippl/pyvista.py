@@ -117,7 +117,7 @@ class Manager:
                 self.mesh_data["nodes"],
             )
 
-    def plot(self, pv_set: Settings, quantity_name: str, plotter: Optional[pv.Plotter] = None) -> Optional[pv.Plotter]:
+    def plot(self, pv_set: Settings, quantity_name: str, export_name: str = None, plotter: Optional[pv.Plotter] = None) -> Optional[pv.Plotter]:
         """
         Function to plot using PyVista.
 
@@ -173,10 +173,13 @@ class Manager:
         if pv_set.image_scale > 1:
             plotter.image_scale = pv_set.image_scale
 
-        quantity_name = quantity_name.lower()
-        quantity_name = quantity_name.replace(" ", "_")
-        symbols_to_remove = "'\"()[]{}"
-        quantity_name = quantity_name.translate(str.maketrans("", "", symbols_to_remove))
+        if export_name is None:
+            quantity_name = quantity_name.lower()
+            quantity_name = quantity_name.replace(" ", "_")
+            symbols_to_remove = "'\"()[]{}"
+            quantity_name = quantity_name.translate(str.maketrans("", "", symbols_to_remove))
+        else:
+            quantity_name = export_name
 
         if pv_set.export_png:
             quantity_png_file = self.output_dir / Path(f"{quantity_name}.png")
